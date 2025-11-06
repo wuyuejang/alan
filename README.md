@@ -14,14 +14,11 @@ p { font-size:14px; margin-top:0; }
 .grid { display:grid; gap:12px; }
 .grid-cols-1 { grid-template-columns:repeat(1,1fr); }
 .grid-cols-2 { grid-template-columns:repeat(2,1fr); }
-.label-box { border:1px solid #ddd; border-radius:8px; padding:8px; cursor:pointer; display:flex; flex-direction:column; }
+.label-box { border:1px solid #ddd; border-radius:8px; padding:8px; cursor:pointer; display:flex; flex-direction:column; margin-bottom:4px; }
 .label-box:hover { background:#f0f0f0; }
 .checkbox { margin-right:6px; }
 .tooltip { position:relative; display:inline-block; }
-.tooltip .tt { 
-  position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px);
-  background:rgba(0,0,0,0.8); color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; display:none; white-space:nowrap; z-index:50;
-}
+.tooltip .tt { position:absolute; left:50%; transform:translateX(-50%); bottom:calc(100% + 8px); background:rgba(0,0,0,0.8); color:#fff; padding:6px 8px; border-radius:6px; font-size:12px; display:none; white-space:nowrap; z-index:50; }
 .tooltip:hover .tt { display:block; }
 .scroll-x { overflow-x:auto; }
 button { padding:8px 16px; border:none; border-radius:6px; cursor:pointer; font-size:14px; }
@@ -46,19 +43,19 @@ th { background:#f0f0f0; text-align:left; }
     <div class="grid grid-cols-1">
       <div class="card">
         <h2>蛋白質</h2>
-        <div id="protein-list" class="grid grid-cols-1" style="max-height:300px; overflow:auto;"></div>
+        <div id="protein-list" style="max-height:300px; overflow:auto;"></div>
       </div>
       <div class="card">
         <h2>主食</h2>
-        <div id="carb-list" class="grid grid-cols-1" style="max-height:300px; overflow:auto;"></div>
+        <div id="carb-list" style="max-height:300px; overflow:auto;"></div>
       </div>
       <div class="card">
         <h2>蔬菜</h2>
-        <div id="veg-list" class="grid grid-cols-2" style="max-height:300px; overflow:auto;"></div>
+        <div id="veg-list" style="max-height:300px; overflow:auto;"></div>
       </div>
       <div class="card">
         <h2>醬汁 / 水果</h2>
-        <div id="sauce-list" class="grid grid-cols-2" style="max-height:200px; overflow:auto;"></div>
+        <div id="sauce-list" style="max-height:200px; overflow:auto;"></div>
       </div>
     </div>
 
@@ -127,7 +124,7 @@ const FOOD_TEMPLATES = {
     '海帶芽': {portion:'30g', kcal:15,p:1,f:0,c:3,tcm:'涼／鹹', effect:'軟堅散結、降脂'},
     '小黃瓜': {portion:'40g', kcal:8,p:0,f:0,c:2,tcm:'涼／甘', effect:'清熱利水、消腫'},
     '杏鮑菇': {portion:'40g', kcal:40,p:2,f:0,c:8,tcm:'平／甘', effect:'補氣潤燥'},
-    '鈕扣菇': {portion:'40g', kcal:20,p:2,f:0,c:4,tcm:'補氣健脾'}
+    '鈕扣菇': {portion:'40g', kcal:20,p:2,f:0,c:4,tcm:'平／甘', effect:'補氣健脾'}
   },
   sauces: {
     '柚香和風': {portion:'15g', kcal:10,p:0,f:0,c:2,tcm:'涼／辛甘', effect:'開胃醒脾'},
@@ -157,15 +154,16 @@ function makeOption(name, group, info){
   input.type='checkbox';
   input.className='checkbox';
   input.addEventListener('change',()=>{
-    if(input.checked){ selected[group].push(name); }
+    if(input.checked){ selected[group].push(name); } 
     else{ selected[group]=selected[group].filter(x=>x!==name); }
     refreshSummary();
   });
   wrapper.appendChild(input);
   const div = document.createElement('div');
-  div.innerHTML=`<strong>${name}</strong> (${info.portion})<br><span style="font-size:12px;color:#555;">${info.effect} • ${info.tcm}</span>`;
+  div.innerHTML=`${name} (${info.portion})<br>${info.effect} • ${info.tcm}`;
   wrapper.appendChild(div);
-  const tooltip=document.createElement('div'); tooltip.className='tt';
+  const tooltip=document.createElement('div');
+  tooltip.className='tt';
   tooltip.textContent=`${info.tcm} · ${info.effect} · kcal ${info.kcal} · P ${info.p}g / F ${info.f}g / C ${info.c}g`;
   wrapper.appendChild(tooltip);
   return wrapper;
@@ -184,15 +182,7 @@ function refreshSummary(){
   let tcmCount={平:0,涼:0,寒:0,溫:0,熱:0};
   all.forEach(name=>{
     const info = FOOD_TEMPLATES.proteins[name]||FOOD_TEMPLATES.carbs[name]||FOOD_TEMPLATES.vegs[name]||FOOD_TEMPLATES.sauces[name];
-    nutriRows.innerHTML+=`<tr>
-      <td>${name}</td>
-      <td>${info.portion}</td>
-      <td>${info.kcal}</td>
-      <td>${info.p}</td>
-      <td>${info.f}</td>
-      <td>${info.c}</td>
-      <td>${info.tcm}</td>
-    </tr>`;
+    nutriRows.innerHTML+=`<tr><td>${name}</td><td>${info.portion}</td><td>${info.kcal}</td><td>${info.p}</td><td>${info.f}</td><td>${info.c}</td><td>${info.tcm}</td></tr>`;
     totalKcal+=info.kcal; totalP+=info.p; totalF+=info.f; totalC+=info.c;
     info.tcm.split(/[／]/).forEach(v=>{if(tcmCount[v]!==undefined) tcmCount[v]++;});
   });
@@ -205,7 +195,7 @@ function refreshSummary(){
   tcmSummaryEl.textContent=tcmMsg.length? tcmMsg.join(' • ') : '尚無足夠資料。';
 }
 
-// 下載 CSV
+// CSV 下載
 document.getElementById('download-csv').addEventListener('click',()=>{
   let csv='食材,份量,kcal,蛋白(g),脂肪(g),碳水(g),中醫屬性\n';
   [...selected.protein,...selected.carb,...selected.vegs,...selected.sauce].forEach(name=>{
@@ -214,7 +204,10 @@ document.getElementById('download-csv').addEventListener('click',()=>{
   });
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='營養報告.csv'; a.click();
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='營養報告.csv';
+  a.click();
   URL.revokeObjectURL(url);
 });
 
